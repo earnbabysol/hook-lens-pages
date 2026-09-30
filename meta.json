@@ -1,0 +1,56 @@
+{
+  "chains": [
+    {
+      "id": "eth",
+      "name": "Ethereum",
+      "chainId": 1,
+      "explorer": "https://etherscan.io"
+    },
+    {
+      "id": "base",
+      "name": "Base",
+      "chainId": 8453,
+      "explorer": "https://basescan.org"
+    },
+    {
+      "id": "bsc",
+      "name": "BNB Smart Chain",
+      "chainId": 56,
+      "explorer": "https://bscscan.com"
+    },
+    {
+      "id": "robinhood",
+      "name": "Robinhood Chain",
+      "chainId": 4663,
+      "explorer": "https://robinhoodchain.blockscout.com"
+    }
+  ],
+  "examples": [
+    {
+      "label": "Robinhood · SI / AI",
+      "chain": "robinhood",
+      "input": "0xa8270528100cf1b8935e10400644ebe2d5737c3983e12bddfb8a162a218315f4"
+    },
+    {
+      "label": "Ethereum · ZC / WETH",
+      "chain": "eth",
+      "input": "0xf884f15815c943e08daebb0c8945d5b27cc7bfa4ed2880be1195048a9aad9f74"
+    },
+    {
+      "label": "Base · CATALYST / USDC",
+      "chain": "base",
+      "input": "0xf0bac62dd4fd04dc26c9bc9ded68f16c515ab71c09bb87e8e546b7ce83c0ccb9"
+    },
+    {
+      "label": "BSC · GOOGLB / USDC",
+      "chain": "bsc",
+      "input": "0xce767a36a4ac4cdd79e082958a9e68673e38329d4fc075e8ee28597a5d69468e"
+    },
+    {
+      "label": "Robinhood · PONS / USDG",
+      "chain": "robinhood",
+      "input": "0x486435a1f76cd58193f854c6e6213cd05fd58d637865d02065ff558b387fa6ea"
+    }
+  ],
+  "version": "1.1.0"
+}

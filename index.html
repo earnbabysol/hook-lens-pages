@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="hook-lens-runtime" content="browser">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https:; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#101412">
+  <title>Hook Lens · 链上收费分析</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./browser-client.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Hook Lens 首页">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 28 28" fill="none"><path d="M6 5v12a6 6 0 0 0 12 0v-2M18 5v5M14 5h8M3 9h6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="21" cy="20" r="5" stroke="currentColor" stroke-width="2"/><path d="m24.5 23.5 2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span>
+        <span>Hook<span class="brand-light"> Lens</span></span>
+      </a>
+      <div class="topbar-note"><span class="status-dot" aria-hidden="true"></span>浏览器直连 <span class="topbar-divider">/</span> 只读链上数据</div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <div class="eyebrow"><span class="eyebrow-line"></span> UNISWAP V4 ANALYZER</div>
+        <h1>看清 Hook <span>真正收了多少。</span></h1>
+        <p class="intro-copy">从池子配置到真实交易，把 池内手续费、Hook 额外税和外部策略拆开看。</p>
+        <div class="supported-chains" aria-label="支持的区块链">
+          <span><i class="network-icon eth">◆</i> Ethereum</span>
+          <span><i class="network-icon base">●</i> Base</span>
+          <span><i class="network-icon bsc">◇</i> BSC</span>
+          <span><i class="network-icon robinhood">↗</i> Robinhood</span>
+        </div>
+      </section>
+
+      <section class="search-panel" aria-label="分析池子或 Hook">
+        <form id="analyze-form">
+          <label class="field-label" for="target-input">池子 / Hook</label>
+          <div class="search-row">
+            <div class="target-wrap"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg><input id="target-input" name="target" type="text" required maxlength="1000" spellcheck="false" autocomplete="off" placeholder="粘贴池 ID、Hook 地址或 Uniswap 池子链接" aria-describedby="input-hint"></div>
+            <select id="chain-select" aria-label="选择区块链"><option value="auto">自动识别链</option><option value="eth">Ethereum</option><option value="base">Base</option><option value="bsc">BSC</option><option value="robinhood">Robinhood</option></select>
+            <button id="analyze-button" class="primary-button" type="submit"><span>开始分析</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12M11 5l5 5-5 5"/></svg></button>
+          </div>
+          <div class="search-footer"><p id="input-hint">支持 32 字节池 ID、合约地址和池子链接；不需要连接钱包。</p><button class="text-button" id="settings-toggle" type="button" aria-expanded="false" aria-controls="advanced-settings"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3v10M8 3v10M13 3v10M1 6h4M6 10h4M11 5h4"/></svg>高级设置</button></div>
+          <div id="advanced-settings" class="advanced-settings" hidden>
+            <div class="settings-heading"><div><h3>数据源与样本</h3><p>公共 RPC 可能限流。可使用自己的 RPC；地址仅在本页临时使用。</p></div><label class="sample-control">交易样本<select id="sample-size"><option value="6">6 笔 · 更快</option><option value="12" selected>12 笔 · 默认</option><option value="24">24 笔 · 更多证据</option><option value="40">40 笔 · 深入检查</option></select></label></div>
+            <div id="rpc-inputs" class="rpc-grid"><label>Ethereum RPC<input type="url" data-rpc-chain="eth" placeholder="https://…（可选）" autocomplete="off" spellcheck="false"></label><label>Base RPC<input type="url" data-rpc-chain="base" placeholder="https://…（可选）" autocomplete="off" spellcheck="false"></label><label>BSC RPC<input type="url" data-rpc-chain="bsc" placeholder="https://…（可选）" autocomplete="off" spellcheck="false"></label><label>Robinhood RPC<input type="url" data-rpc-chain="robinhood" placeholder="https://…（可选）" autocomplete="off" spellcheck="false"></label></div>
+          </div>
+        </form>
+        <div class="examples-row" id="examples-wrap" hidden><span class="subtle-label">试一试</span><div id="examples" class="examples"></div></div>
+      </section>
+
+      <section id="history-section" class="history-section" hidden><span class="subtle-label">最近分析</span><div id="history-list" class="history-list"></div><button id="clear-history" class="text-button muted-button" type="button">清空</button></section>
+
+      <section id="progress-panel" class="progress-panel" aria-live="polite" hidden>
+        <div class="progress-heading"><span class="spinner" aria-hidden="true"></span><div><h2 id="progress-title">正在连接链上数据</h2><p>读取配置与交易回执，交叉验证实际扣费。</p></div><span id="elapsed" class="elapsed">0 秒</span><button id="cancel-button" class="secondary-button" type="button">取消</button></div>
+        <div class="progress-track"><span></span></div><ol id="progress-list" class="progress-list"></ol>
+      </section>
+
+      <section id="error-panel" class="error-panel" role="alert" hidden><span class="error-symbol" aria-hidden="true">!</span><div><h2 id="error-title">本次分析未完成</h2><p id="error-message"></p></div><button id="retry-button" class="secondary-button" type="button">重试</button></section>
+
+      <section id="empty-state" class="empty-state">
+        <div class="empty-heading"><span class="scan-icon" aria-hidden="true"><svg viewBox="0 0 44 44"><path d="M14 7H7v7M30 7h7v7M7 30v7h7M37 30v7h-7M14 16h16M14 22h10M14 28h16"/></svg></span><h2>每个费率，都应该有依据。</h2><p>输入一个池子，开始你的链上收费检查。</p></div>
+        <div class="method-grid"><article><span class="step-index">01</span><h3>定位池子与 Hook</h3><p>核对池 ID、币对及 Hook 权限，识别动态费率和外部策略。</p></article><article><span class="step-index">02</span><h3>验证真实交易</h3><p>检查 Swap、转账与内部记账，区分用户交易和换税交易。</p></article><article><span class="step-index">03</span><h3>给出可追溯的结论</h3><p>分别展示买卖费率和证据；尚未确认的部分会明确标出。</p></article></div>
+        <div class="empty-footnote"><span class="tiny-ring"></span>分析范围：Uniswap v4 池子及兼容 Hook</div>
+      </section>
+
+      <div id="results" hidden></div>
+    </main>
+    <footer class="footer"><span>Hook Lens <span id="version"></span></span><span>链上快照 · 无需钱包 · 不发起交易</span><span class="footer-right">费用 ≠ 滑点 ≠ 价格影响</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>
